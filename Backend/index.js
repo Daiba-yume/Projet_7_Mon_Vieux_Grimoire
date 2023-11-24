@@ -1,5 +1,6 @@
 require("dotenv").config();
 const { app } = require("./config/app");
+require("./db/mongo");
 const { usersRouter } = require("./controllers/users.controller");
 const { booksRouter } = require("./controllers/books.controller");
 

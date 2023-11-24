@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 
-const DB_URL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_DOMAIN}`;
+const PASSWORD = "MRKbbutD6BwWSKPW";
+const USER = "daibabnm";
+const DB_URL = `mongodb+srv://${USER}:${PASSWORD}@cluster0.g5bprjg.mongodb.net/?retryWrites=true&w=majority`;
 
 async function connect() {
   try {
@@ -11,3 +13,5 @@ async function connect() {
   }
 }
 connect();
+
+module.export = {};
