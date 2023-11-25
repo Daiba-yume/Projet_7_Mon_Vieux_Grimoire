@@ -1,17 +1,30 @@
+// Imports
 const http = require("http");
+const app = require("./app");
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("Hello World!");
-});
+require("dotenv").config();
+// Normalisation du port
+const normalizePort = (val) => {
+  const port = parseInt(val, 10);
+  if (isNaN(port)) {
+    return val;
+  }
+  if (port >= 0) {
+    return port;
+  }
+  return false;
+};
 
+const port = normalizePort(process.env.PORT || "4000");
+app.set("port", port);
+// Gestion des erreurs
 const errorHandler = (error) => {
   if (error.syscall !== "listen") {
     throw error;
   }
-
-  const bind = typeof port === "string" ? "pipe " + port : "port " + port;
-
+  const address = server.address();
+  const bind =
+    typeof address === "string" ? "pipe " + address : "port: " + port;
   switch (error.code) {
     case "EACCES":
       console.error(bind + " requires elevated privileges.");
@@ -22,22 +35,15 @@ const errorHandler = (error) => {
       process.exit(1);
       break;
     default:
-      console.error("An error occurred:", error.message);
       throw error;
   }
 };
-
+// Création du serveur
+const server = http.createServer(app);
 server.on("error", errorHandler);
 server.on("listening", () => {
   const address = server.address();
-  if (address) {
-    const bind =
-      typeof address === "string" ? "pipe " + address : "port " + port;
-    console.log("Server is listening on " + bind);
-  } else {
-    console.log("Server is listening");
-  }
+  const bind = typeof address === "string" ? "pipe " + address : "port " + port;
+  console.log("Listening on " + bind);
 });
-
-const port = 4000;
 server.listen(port);
