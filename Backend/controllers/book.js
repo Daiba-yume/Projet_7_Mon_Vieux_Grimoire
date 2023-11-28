@@ -42,7 +42,7 @@ exports.getOneBook = (req, res, next) => {
 exports.modifyBook = (req, res, next) => {
   const bookObject = req.file
     ? {
-        ...JSON.parse(req.body.thing),
+        ...JSON.parse(req.body.book),
         imageUrl: `${req.protocol}://${req.get("host")}/images/${
           req.file.filename
         }`,
@@ -153,6 +153,6 @@ exports.bestRating = (req, res, next) => {
       $limit: maxResults,
     },
   ])
-    .then((books) => res.status(200).json(books))
+    .then((book) => res.status(200).json(book))
     .catch((error) => res.status(400).json({ error: error.message }));
 };
