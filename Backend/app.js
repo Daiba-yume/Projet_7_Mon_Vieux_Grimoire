@@ -1,25 +1,25 @@
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
-const mongoose = require("mongoose");
-
-const { usersRouter } = require("./routes/routesUsers");
-//const { booksRouter } = require("./routes/routesBooks");
-
 require("dotenv").config();
-
+const mongoose = require("mongoose");
 const app = express();
+const bookRoutes = require("./routes/book");
+const userRoutes = require("./routes/user");
+const path = require("path");
+const BodyParser = require("body-parser");
+
+const mongoPassword = process.env.MONGODB_PASSWORD;
 
 mongoose
-  .connect(`${process.env.DB_URL}`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    `mongodb+srv://daibabnm:${mongoPassword}@cluster0.g5bprjg.mongodb.net/?retryWrites=true&w=majority`,
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
-
+// Middleware pour analyser les données de requêtes
 app.use(express.json());
-app.use(cors());
+
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -32,10 +32,13 @@ app.use((req, res, next) => {
   );
   next();
 });
-// Gestion de la ressource "images" de manière statique
+
+app.use(cors());
+
+//app.use(BodyParser.json());
 app.use("/images", express.static(path.join(__dirname, "images")));
 
-app.use("/api/auth", usersRouter);
-//app.use("/api/books", booksRouter);
+app.use("/api/books", bookRoutes);
+app.use("/api/auth", userRoutes);
 
 module.exports = app;
