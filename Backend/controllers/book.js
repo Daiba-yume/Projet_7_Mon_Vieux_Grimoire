@@ -1,4 +1,5 @@
 const Book = require("../models/book");
+const fs = require("fs");
 
 exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
@@ -140,19 +141,9 @@ exports.averageRating = (req, res, next) => {
 
 // Récupère les 3 meilleurs livres
 exports.bestRating = (req, res, next) => {
-  //définition de la constante maxResules sur 3
-  const maxResults = 3;
-  // utilisation d'aggregate sur le modèle Book
-  Book.aggregate([
-    {
-      // sort permet de trier les livre en fonction de averageRating de manière décroissante. Il mettra donc en permier les meilleures notes
-      $sort: { averageRating: -1 },
-    },
-    {
-      // Limite étant définie sur maxResults vas renvoyer que 3 livres
-      $limit: maxResults,
-    },
-  ])
-    .then((book) => res.status(200).json(book))
-    .catch((error) => res.status(400).json({ error: error.message }));
+  Book.find()
+    .sort({ averageRating: -1 })
+    .limit(3)
+    .then((books) => res.status(200).json(books))
+    .catch((error) => res.status(401).json({ error }));
 };

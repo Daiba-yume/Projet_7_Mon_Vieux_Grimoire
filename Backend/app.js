@@ -6,7 +6,6 @@ const app = express();
 const bookRoutes = require("./routes/book");
 const userRoutes = require("./routes/user");
 const path = require("path");
-const BodyParser = require("body-parser");
 
 const mongoPassword = process.env.MONGODB_PASSWORD;
 
@@ -35,7 +34,6 @@ app.use((req, res, next) => {
 
 app.use(cors());
 
-//app.use(BodyParser.json());
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.use("/api/books", bookRoutes);
