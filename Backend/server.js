@@ -1,3 +1,4 @@
+// Importation des modules
 const http = require("http");
 const app = require("./app");
 
@@ -40,8 +41,10 @@ const errorHandler = (error) => {
   }
 };
 
+// Création du serveur HTTP en utilisant l'application express
 const server = http.createServer(app);
 
+// Gestion des événements d'erreur et d'écoute du serveur
 server.on("error", errorHandler);
 server.on("listening", () => {
   const address = server.address();
@@ -49,4 +52,5 @@ server.on("listening", () => {
   console.log("Listening on " + bind);
 });
 
+// Écoute du serveur sur le port spécifié
 server.listen(port);

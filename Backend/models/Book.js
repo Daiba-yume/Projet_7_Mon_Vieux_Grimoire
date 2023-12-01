@@ -1,3 +1,4 @@
+// Module mongoose pour la gestion de la base de données MongoDB
 const mongoose = require("mongoose");
 
 // Schéma de données permetant la création d'un Book
@@ -17,4 +18,5 @@ const bookSchema = new mongoose.Schema({
   averageRating: { type: Number, required: true },
 });
 
+// Exportation du modèle Book basé sur le schéma défini
 module.exports = mongoose.model("Book", bookSchema);

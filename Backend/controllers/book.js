@@ -1,15 +1,20 @@
 const Book = require("../models/book");
 const fs = require("fs");
 
+// Création d'un livre
 exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   // suppression de la clé _id et du userId  évite tout modifcation non autorisée
   delete bookObject._id;
   delete bookObject.userId;
+  delete bookObject.averageRating;
+  delete bookObject.ratings;
 
   // nouvel objet book en utilisant le modèle Book
   const book = new Book({
     ...bookObject,
+    averageRating: 0,
+    ratings: [{ userId: req.auth.userId, grade: 0 }],
     userId: req.auth.userId,
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
       req.file.filename.split(".")[0]
@@ -26,6 +31,7 @@ exports.createBook = (req, res, next) => {
     });
 };
 
+// Obtenir un livre spécifique par son identifiant
 exports.getOneBook = (req, res, next) => {
   Book.findOne({
     _id: req.params.id,
@@ -40,6 +46,7 @@ exports.getOneBook = (req, res, next) => {
     });
 };
 
+// Modifier un livre existant
 exports.modifyBook = (req, res, next) => {
   const bookObject = req.file
     ? {
@@ -54,7 +61,7 @@ exports.modifyBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
-        res.status(401).json({ message: "Not authorized" });
+        res.status(403).json({ message: "Not authorized" });
       } else {
         Book.updateOne(
           { _id: req.params.id },
@@ -69,11 +76,12 @@ exports.modifyBook = (req, res, next) => {
     });
 };
 
+// supprimer un livre existant
 exports.deleteBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
-        res.status(401).json({ message: "Not authorized" });
+        res.status(403).json({ message: "Not authorized" });
       } else {
         const filename = book.imageUrl.split("/images/")[1];
         fs.unlink(`images/${filename}`, () => {
@@ -90,6 +98,7 @@ exports.deleteBook = (req, res, next) => {
     });
 };
 
+// obtenir tous les livres
 exports.getAllBook = (req, res, next) => {
   Book.find()
     .then((books) => {
@@ -123,13 +132,15 @@ exports.averageRating = (req, res, next) => {
           .status(400)
           .json({ message: "Vous avez déjà donné une note à ce livre" });
       } else {
+        // Ajout de la nouvelle note aux évaluations du livre
         book.ratings.push(newRating);
 
         const ratings = book.ratings.map((rating) => rating.grade);
         const sum = ratings.reduce((acc, cur) => acc + cur, 0);
         const average = Math.ceil(sum / ratings.length);
-
+        // Mise à jour de la note moyenne du livre
         book.averageRating = average;
+        // Sauvegarde des modifications dans la base de données
         book
           .save()
           .then((book) => res.status(200).json(book))
@@ -141,6 +152,7 @@ exports.averageRating = (req, res, next) => {
 
 // Récupère les 3 meilleurs livres
 exports.bestRating = (req, res, next) => {
+  // Recherche des livres triés par note moyenne décroissante
   Book.find()
     .sort({ averageRating: -1 })
     .limit(3)
